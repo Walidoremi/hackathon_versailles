@@ -1,21 +1,24 @@
 import asyncio
-from app.services.chat_service import ChatService
-from app.models.chat import Message
+from app.services.multi_agent_service import MultiAgentService
 
 async def main():
-    service = ChatService()
+    service = MultiAgentService()
 
-    # Ici tu mets ton "prompt system" pour définir le comportement du bot
-    system_prompt = Message(role="system", content="Tu es un assistant très poli qui répond toujours en français.")
+    user_input = "Nous voulons visiter Versailles demain."
+    date = "2025-09-29"
+    affluence_info = "Affluence très forte le matin, plus calme après 15h."
 
-    # Ici tu mets ton message utilisateur
-    user_message = Message(role="user", content="Donne-moi une blague courte sur les développeurs.")
+    result = await service.run(
+        user_input=user_input,
+        date=date,
+        weather_csv="weather_forecast.csv",
+        events_csv="versailles_events.csv",
+        affluence=affluence_info
+    )
 
-    # Appel du service
-    reply, usage = await service.generate([system_prompt, user_message])
-
-    print("Réponse du chatbot :", reply)
-    print("Usage :", usage)
+    print("\n=== Profiling ===\n", result["profiling"])
+    print("\n=== Contraintes ===\n", result["constraints"])
+    print("\n=== Itinéraire ===\n", result["itinerary"])
 
 if __name__ == "__main__":
     asyncio.run(main())

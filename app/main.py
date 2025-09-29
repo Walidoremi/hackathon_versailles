@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .routers import health, chat, multi_chat, ui
 from .middleware.request_id import RequestIDMiddleware
+import pandas as pd
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

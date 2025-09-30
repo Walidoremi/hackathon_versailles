@@ -13,7 +13,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="LLM Chat API",
     version="0.1.0",
-    description="Squelette d'API FastAPI pour brancher un chatbot (ex: Mistral)",
+    description="Les clefs de Versailles !",
     lifespan=lifespan,
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",

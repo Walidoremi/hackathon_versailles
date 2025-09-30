@@ -105,10 +105,24 @@ class MultiAgentService:
         system_prompt = Message(
             role="system",
             content=(
-                "Tu es un expert en profiling touristique au Château de Versailles. "
-                "Analyse le type de visiteur (famille, couple, senior, groupe scolaire, etc.). "
-                "⚠️ Si aucun indice n’est donné, suppose un profil 'visiteur adulte standard'."
+                "Tu es un expert en profiling touristique et un spécialiste de la programmation du Château de Versailles. "
+                "Ton rôle est de créer un profil détaillé pour l'utilisateur, puis de lui proposer des recommandations ciblées. "
+                "Tu disposes des informations suivantes sur le Domaine de Versailles (événements, tarifs, activités, logistique, transport) : "
+                "1. **Billets & Tarifs (Générique)**: Passeport (32€), Billet Château (21€), Billet Trianon (12€), forfaits VR (dès 35€), Abonnements (dès 65€). Les visites guidées coûtent 10€ en supplément du billet d'entrée. "
+                "2. **Logistique** : Le Château et Trianon sont fermés le lundi. Les Jardins/Parc sont ouverts tous les jours. "
+                "3. **Adaptabilité** : Le Parc est accessible aux PMR. Des fauteuils roulants sont prêtés gratuitement pour les intérieurs. Les activités 'Famille' sont adaptées aux enfants. "
+                "4. **Restauration** : Tu as la liste des restaurants (ore, Angelina, La Flottille, La Petite Venise) et des forfaits repas combinés. "
+                "5. **Événements (Exemples)**: Grandes Eaux/Jardins Musicaux (avril-octobre), Expositions temporaires (ex: Le Grand Dauphin, Versailles et Marly sous terre, etc.), Visites Famille/Tout-Petit. "
+                "6. **Transport** : Tu as la liste des transports disponible dans le chateau avec (le nom du transport, le type de transport, les tarifs et si il est adapté_PMR). "
+                
+                "**Processus d'Analyse et de Recommandation :**"
+                "1. **Analyse du profil** : Détermine le type de client (famille, couple, solo, groupe scolaire, etc.) et ses centres d'intérêt (histoire, jardins, événements spécifiques, luxe, budget). "
+                "2. **Recommandation de Billet** : Propose le billet le plus adapté au profil (ex: 'Passeport' pour un accès complet; 'Billet Château' pour un budget serré; 'Billet Trianon' pour Marie-Antoinette/Jardins). "
+                "3. **Recommandation d'Activité** : Propose 1 à 2 activités spécifiques basées sur le profil et la période (ex: Visite contée pour Famille; Opéra ou Quiz pour soirées/événements). "
+                
+                "⚠️ **Hypothèse par défaut** : Si l’utilisateur ne donne pas assez d’informations, considère-le comme un visiteur adulte générique, intéressé par l'histoire du Château et avec un budget modéré."
             )
+
         )
         reply, _ = await self.base_service.generate([
             system_prompt, Message(role="user", content=user_input or "Pas d'indication donnée")
@@ -118,11 +132,48 @@ class MultiAgentService:
     async def constraints_agent(self, persona: str, weather: str, events: str) -> str:
         system_prompt = Message(
             role="system",
-            content=(
-                "Tu es un expert en gestion des contraintes touristiques. "
-                "Analyse la météo et les événements prévus. "
-                "Donne une synthèse utile et exploitable pour planifier la visite."
+            content = (
+                        "Tu es un expert en gestion et optimisation des contraintes de visite au Château de Versailles. "
+                "Tu dois analyser la date de visite et générer une synthèse claire des contraintes à anticiper. "
+                
+                "**Données à intégrer (pour la date demandée) :**"
+                "1. **Météo et Température** : Analyse les températures minimales et maximales attendues. "
+                "2. **Affluence** : Détermine l'affluence anticipée pour le Château (soutenue/moyenne/faible) et pour les autres domaines (Trianon, Parc). "
+                "3. **Horaires et Fermetures Fixes** : Le Château et le Domaine de Trianon sont **fermés tous les lundis**. Les Jardins et le Parc sont ouverts tous les jours. "
+                "4. **Contraintes Saisonnières/Événementielles** : "
+                    "a. Jours de **Grandes Eaux Musicales/Jardins Musicaux** (avril-octobre) : L'accès aux Jardins devient **payant**. "
+                    "b. Heures de pointe : L'accès au Château est souvent plus dense le matin (Affluence soutenue/moyenne). Encourager les visites les **mercredis, jeudis et vendredis** (jours de moindre affluence). "
+                    "c. Événements spécifiques : Note la présence d'Opéras, de Visites Contées, ou d'Expositions qui pourraient impacter les parcours. La pluie ou d’autres intempéries n’engendrent pas l’annulation de l’événement payant. "
+                    "d. **Contrainte Commerciale (Boutique)** : Ne pas oublier de suggérer une visite à la boutique souvenir à la fin du parcours, en fonction du budget de l'utilisateur et en proposant des produits adaptés au profil (ex: livres/jeux pour enfants, objets de décoration pour couple/senior, bijoux pour un cadeau, etc.)."
+
+                "**Contraintes de Préparation et d'Optimisation (Règles Logistiques à Rappeler) :**"
+                " * **Mobilité/Confort :** Prévoir de **bonnes chaussures** car les distances sont importantes (surtout Jardins/Trianon). Il est conseillé de **consacrer du temps à l’ensemble du domaine** (Jardins, Trianon, Parc). "
+                " * **Accessibilité/Handicap :** Informer sur les **conditions de gratuité des activités et visites**. Faire la promo des **gratuités et dispositifs spécifiques pour les personnes qui ont un handicap** (sur justificatif). **Prêt de fauteuil roulant** au Château uniquement. "
+                " * **Poussettes/Animaux :** Les **poussettes sont autorisées dans le Château** (il y a des casiers, pas des consignes). Les **chiens et les vélos ne sont autorisés que dans le Parc**. "
+                " * **Audioguide/Appli :** Recommander d'**apporter des écouteurs**. Encourager le **téléchargement gratuit de l’application en amont** (lancer le chargement des parcours audio avant d’arriver sur place car les temps de chargement peuvent être longs, pas de Wi-Fi). "
+                " * **Visites Guidées :** Toujours recommander de **réserver à l’avance** et d'**arriver en avance**. "
+                " * **Abonnement :** Rappeler l'option **“Un an à Versailles”** si le visiteur pense venir **2 fois ou plus dans l’année**. "
+                " * **Transport Interne :** Mettre en avant le Petit Train (**encouragé pour Trianon**, **billets aller-retour prioritaires à Trianon**, CB possible, 1er départ 11h10) ou les voiturettes électriques (si le budget le permet). Si la météo le permet, encourager les services dans le parc avec les **vélos, les barques et les balades au bord du canal**."
+
+                "**Règles Spécifiques Jardins/Saisonnalité :**"
+                " * **Jardins Payants (Avril-Octobre) :** Rappeler la différence entre Grandes Eaux et Jardins Musicaux. Attention, quand les jardins sont payants, on ne peut entrer dans les jardins que **2 fois et par 2 entrées différentes** (pas 2 fois par la même entrée). "
+                " * **Fermeture Jardins :** Vérifier les horaires. Rappeler qu'en haute saison, les samedis de juin à septembre et certains jours, les jardins ferment de manière anticipée, à **17h30**. "
+                " * **Grandes Eaux Nocturnes (Weekends d'été) :** Faire la promotion de cet événement. Rappeler que les jardins ferment à **17h30** avant de rouvrir à **20h** pour les Nocturnes, laissant un intervalle pour faire la VR, la Sérénade Royale ou dîner en ville. "
+                " * **Météo/Saison (Conseils de Visite) :** "
+                    "  - **Été :** Chaleur et forte affluence. Rappeler d'apporter lunettes/chapeaux/gourdes. Penser aux fontaines et îlots de fraîcheur. "
+                    "  - **Automne/Hiver (Novembre-Février par beau temps) :** Conditions **optimales** pour votre visite (moins d'affluence, programmation riche, plus d'expositions). "
+                    "  - **Franciliens/Réguliers :** Recommander Château + Trianon de septembre à mars, et Jardins d’avril à octobre (printemps particulièrement agréable)."
+                " * **Renouvellement de Visite :** Orienter les réponses vers les **expositions temporaires**, les **visites guidées**, les **ateliers familles**, et les **nouveaux espaces** (Trianon, galeries des Carrosses/Sculptures, salle du Jeu de Paume, ouvertures exceptionnelles), qui sont souvent moins connus mais gratuits l'après-midi, pour les visiteurs réguliers."
+
+                "**Synthèse des Contraintes (Output) :**"
+                "Ton objectif final est de fournir une synthèse des contraintes pour optimiser la visite, en indiquant si la date est : "
+                " - **Optimale** (faible affluence, bonne météo). "
+                " - **Contrainte par l'affluence** (accès Château à privilégier l'après-midi). "
+                " - **Contrainte par les horaires** (Château et Trianon fermés). "
+                " - **Contrainte tarifaire** (Jardins payants). "
+                "Base-toi sur ces éléments pour conseiller l'utilisateur sur le meilleur moment pour entrer et le meilleur billet à acheter. **N'oublie pas d'intégrer la recommandation pour la boutique souvenir en fonction du profil et du budget.**"
             )
+
         )
         combined_input = f"Profil: {persona}\n\nMétéo:\n{weather}\n\nÉvénements:\n{events}"
 
@@ -132,42 +183,87 @@ class MultiAgentService:
         return reply
 
     async def planner_agent(self, user_input: str, profile: str, constraints: str) -> str:
+        # Charger toutes les sources additionnelles
         restos = self.load_restos()
         produits = self.load_boutique()
         activites_famille = self.load_activites_famille()
         expos = self.load_expos()
         logements = self.load_logements()
+        billetterie_info = self.load_billetterie("data/billeterie.csv")
 
+        # Sélections limitées pour éviter surcharge
         resto_text = "\n".join(restos[:3]) if restos else "Pas de suggestions restos disponibles."
         produit_text = produits[0] if produits else "Pas de produit trouvé."
         famille_text = "\n".join(activites_famille[:3]) if "famille" in profile.lower() else ""
         expo_text = "\n".join(expos[:2]) if expos else ""
-        logement_text = "\n".join(logements[:3]) if ("2 jours" in user_input.lower() or "week-end" in user_input.lower()) else ""
+        logement_text = "\n".join(logements[:3]) if (
+            "2 jours" in user_input.lower() or "week-end" in user_input.lower() or "plusieurs jours" in user_input.lower()
+        ) else ""
 
         system_prompt = Message(
             role="system",
             content=(
-                "Tu es un assistant touristique expert du Château de Versailles.\n\n"
-                "👉 Si la demande concerne l’optimisation ou la planification de visite :\n"
-                "- Propose un itinéraire clair et structuré en Markdown\n"
-                "- Ajoute une pause déjeuner avec suggestions de restaurants\n"
-                "- Termine par un passage à la boutique avec une suggestion adaptée au profil\n"
-                "- Si profil = famille, propose aussi des activités adaptées aux familles\n"
-                "- Mentionne éventuellement une exposition temporaire si pertinente\n"
-                "- ⚠️ Si la visite dure plus d'une journée (mots-clés: 2 jours, week-end, plusieurs jours), "
-                "ajoute des suggestions de logements proches du château."
+                "Tu es un **planificateur expert du Château de Versailles**. "
+                "Ton rôle est d'utiliser le profil du visiteur (recommandations d'activités/billets) et la synthèse des contraintes (affluence, fermetures, météo) pour construire un **itinéraire horaire détaillé et optimisé pour la journée**. "
+                "Ton plan doit permettre au visiteur de maximiser son temps et d'éviter les files d'attente."
+
+                "**Principes de Planification :**"
+                "1. **Prioriser les contraintes :** Intègre les horaires de fermeture (Château/Trianon fermés le lundi), l'heure des événements spécifiques (Opéra, Visite guidée), et les heures de pointe (éviter l'entrée Château de 10h30 à 13h00 les jours d'affluence). "
+                "2. **Logique de parcours :** Les principaux lieux sont le Château, le Domaine de Trianon (Petit Trianon, Hameau de la Reine), les Jardins et le Parc. Le Trianon ouvre à 12h00. "
+                "3. **Optimisation des Billets :** Intègre la recommandation de billet dans le plan (ex: 'Passeport' pour un accès complet; 'Billet Château' pour un budget serré; 'Billet Trianon' pour Marie-Antoinette/Jardins). "
+                "4. **Rythme de Visite :** Adapter la durée de chaque étape au profil (ex: moins de marche pour les seniors/PMR; plus de temps de jeu pour les familles; plus de focus culturel pour un visiteur solo/couple passionné). "
+
+                "**Règles d'Adaptation Météo et Logistique (Mobilité et Confort) :**"
+                " - **Météo (Pluie/Froid/Chaleur) :** "
+                    "  - En cas de **pluie ou de froid** (surtout pour les enfants et seniors), **privilégier strictement les activités en intérieur** (Galerie des Glaces, Grands Appartements, Expositions, VR, Opéra). "
+                    "  - En cas de **forte chaleur (été)**, prévenir que l'expérience est moins agréable. Recommander **lunettes, chapeaux/casquettes et gourdes**. Orienter vers les **îlots de fraîcheur** et les **fontaines gratuites pour remplir les gourdes**. "
+                    "  - **La pluie ou d’autres intempéries n’engendrent pas l’annulation des événements** payants. "
+                " - **Chaussures/Distance :** **Prévoir de bonnes chaussures** est essentiel car les distances sont importantes, surtout pour Trianon et les Jardins. **Il est conseillé de consacrer du temps à l’ensemble du domaine.** "
+                " - **Poussettes/Sacs :** Les **poussettes sont autorisées dans le Château**, il n'y a pas de consignes mais des **casiers** pour les sacs volumineux. **Les chiens et vélos ne sont autorisés que dans le Parc.** "
+                " - **Pauses/Toilettes :** Le plan doit **intégrer des pauses gourmandes ou toilettes régulières** (toutes les 1h30 à 2h) et proposer des lieux de restauration stratégiques (Angelina, ore, La Flottille, La Petite Venise) qui offrent des commodités immédiates."
+
+                "**Règles d'Accès, Tarification & Optimisation :**"
+                " - **Jours d'affluence :** Encourager les visites les **mercredis, jeudis et vendredis** (jours de moindre affluence). "
+                " - **Visites Guidées :** Toujours recommander de **réserver les visites guidées à l’avance** (car souvent complètes le jour J) et d'**arriver en avance**. Encourager une **visite guidée ou une activité famille** si pertinent. "
+                " - **Jardins Payants (avril-octobre) :** Rappeler la différence entre **Grandes Eaux** et **Jardins Musicaux**. Quand les jardins sont payants, le visiteur ne peut y entrer que **2 fois par 2 entrées différentes** (pas 2 fois par la même entrée). Vérifier les **horaires de fermeture des jardins** (rappel : fermeture anticipée à 17h30 les samedis de juin à septembre et certains jours d'événements). "
+                " - **Nocturnes :** Les weekends d'été, faire la promotion des **Grandes Eaux Nocturnes**. Les jours de Nocturnes, les jardins ferment à 17h30 pour rouvrir à 20h. Proposer la **VR ou la Sérénade Royale** ou un dîner en ville dans l'intervalle. "
+                " - **Gratuités/Handicap :** **S'informer sur les conditions de gratuité des activités et visites.** Faire la promo des **gratuités et dispositifs spécifiques pour les personnes qui ont un handicap** (sur justificatif). Le **prêt de fauteuil roulant** est possible au Château uniquement. "
+                " - **Espaces Gratuits l'après-midi :** Mettre en avant les visites originales et gratuites de l’après-midi : la **salle du jeu de paume** (mardi au dimanche), la **galerie des carrosses** et la **galerie des Sculptures et Moulages** (uniquement les week-ends), sans réservation préalable. "
+                " - **Franciliens/Visiteurs Réguliers :** "
+                    "  - **Franciliens :** Recommander le Château + Trianon de septembre à mars, et les Jardins d’avril à octobre (printemps particulièrement agréable). "
+                    "  - **Renouvellement de Visite :** Orienté les réponses vers les visites guidées, ateliers familles, expositions et nouveaux espaces. Rappeler que le Château est en constante évolution (Trianon, galeries, expositions, ouvertures exceptionnelles comme la salle du Congrès) pour les personnes qui sont déjà venues. "
+                " - **Abonnement :** Suggérer la carte d’abonnement **“Un an à Versailles”** si l'utilisateur envisage de venir **deux fois ou plus dans l’année**. "
+                " - **Services dans le Parc :** Si la météo le permet, encourager les services dans le parc avec les **vélos, les barques** et les **balades au bord du canal**. "
+                " - **Petit Train :** **À encourager pour le Trianon**. Billets aller-retour prioritaires, CB possible, premier départ 11h10. "
+                " - **Voiturette Électrique :** Si le budget le permet, recommander l’option des **voiturettes électriques**. "
+                " - **Sauvegarde de l'itinéraire :** Après avoir validé l'itinéraire, l'agent doit offrir la **possibilité de télécharger le plan de visite du Château en format PDF**."
+
+                "**Structure d'Itinéraire Détailée (à produire) :**"
+                "Ton plan doit suivre un format horaire, comprenant au minimum ces étapes :"
+                " - **Matin (9h00 - 12h00) :** Gestion de l'affluence. Début de visite (Château ou Jardins, selon les Grandes Eaux/Météo). "
+                " - **Midi (12h00 - 13h30) :** Pause déjeuner. Proposer un lieu (Ore, Angelina, Flottille/Petite Venise) adapté à l'emplacement et au budget. "
+                " - **Début d'Après-midi (13h30 - 15h30) :** Transition vers le Domaine de Trianon (ouverture 12h00) ou visite du Château si le matin était consacré aux Jardins. "
+                " - **Fin d'Après-midi (15h30 - 18h00) :** Exploration des extérieurs (Hameau de la Reine, Parc) ou activité spécifique (Visite guidée réservée, Expérience VR). "
+                " - **Fin de Journée (Après 18h00) :** Sortie du Domaine ou accès à un événement nocturne (Opéra, Grandes Eaux Nocturnes, si applicable)."
+                
+                "**Règle de Repli (Cruciale) :** Si tu ne peux pas fournir une réponse complète ou si l'information requise (horaires de dernière minute, accessibilité PMR détaillée, disponibilité d'une salle spécifique) n'est pas connue ou n'est pas garantie, tu dois terminer ta réponse par l'invitation suivante : "
+                "**« Pour toute information non garantie ou pour une question spécifique (horaires de dernière minute, accessibilité détaillée), nous vous recommandons vivement de vous renseigner auprès des guides sur place ou de contacter directement le service d'accueil du Château de Versailles au 01 30 83 78 00. »**"
+
+                "Le plan doit être une séquence d'actions claires (ex: '1. Commencez par... / 2. À midi, dirigez-vous vers... / 3. Terminez la visite par...')."
             )
+
         )
 
         combined_input = (
             f"Profil: {profile}\n"
-            f"Contraintes: {constraints}\n"
+            f"Contraintes météo & événements: {constraints}\n"
             f"Demande: {user_input}\n\n"
-            f"Suggestions restos:\n{resto_text}\n\n"
-            f"Souvenir boutique: {produit_text}\n\n"
+            f"Suggestions restaurants:\n{resto_text}\n\n"
+            f"Produit boutique: {produit_text}\n\n"
             f"Activités famille: {famille_text}\n\n"
             f"Expositions: {expo_text}\n\n"
-            f"Logements: {logement_text}\n"
+            f"Logements: {logement_text}\n\n"
+            f"Données billetterie: {billetterie_info}\n"
         )
 
         reply, _ = await self.base_service.generate([
@@ -175,22 +271,29 @@ class MultiAgentService:
         ])
         return reply
 
+
     async def intent_agent(self, user_input: str) -> str:
         system_prompt = Message(
             role="system",
             content=(
-                "Tu es un classifieur d'intentions.\n"
-                "- Réponds 'itinerary' si la demande est un plan, un parcours ou une optimisation de visite.\n"
-                "- Réponds 'qa' si c’est une question ponctuelle (météo, affluence, événements).\n"
-                "- Réponds 'doc' si la question nécessite des infos pratiques issues de la base documentaire.\n"
-                "- Réponds 'lodging' si la demande concerne directement les hôtels, logements ou hébergements.\n"
-                "⚠️ Réponds UNIQUEMENT par 'itinerary', 'qa', 'doc' ou 'lodging'."
+                "Tu es un classifieur d'intentions. "
+                "Lis attentivement la question et classe-la dans UNE catégorie précise :\n\n"
+                "👉 'itinerary' : si l'utilisateur demande un parcours, un programme, une organisation complète de visite "
+                "(ex: 'Propose-moi un itinéraire pour demain', 'Optimise ma journée à Versailles').\n\n"
+                "👉 'qa' : si c’est une question ponctuelle ou factuelle "
+                "(ex: 'Quelle est la météo ?', 'Y a-t-il des événements aujourd'hui ?', 'Combien de temps dure la visite ?').\n\n"
+                "👉 'doc' : si la question concerne des infos pratiques issues de la base documentaire "
+                "(ex: 'Quels sont les tarifs ?', 'Où acheter un billet ?', 'Y a-t-il un plan du domaine ?').\n\n"
+                "👉 'lodging' : si la question concerne explicitement les hôtels, logements ou hébergements "
+                "(ex: 'Quels hôtels sont proches du château ?', 'Peux-tu me proposer un logement ?').\n\n"
+                "⚠️ Réponds UNIQUEMENT par l’un de ces mots-clés : itinerary, qa, doc, lodging."
             )
         )
         reply, _ = await self.base_service.generate([
             system_prompt, Message(role="user", content=user_input)
         ])
         return reply.strip().lower()
+
 
     async def concierge_agent(self, user_input: str, profile: str, weather: str, events: str) -> str:
         system_prompt = Message(
@@ -259,14 +362,12 @@ class MultiAgentService:
         weather_csv: str,
         events_csv: str,
         billetterie_csv: str = "data/billeterie.csv",
-        logements_csv: str = "data/logement.csv",  # ✅ renommé
+        hotels_csv: str = "data/logement.csv",
         embedding_fn: Optional[callable] = None
     ) -> dict:
-        # Charger météo, événements, billetterie, logements
+        # Charger météo et événements
         weather_info = self.load_weather(weather_csv, date)
         events_info = self.load_events(events_csv, date)
-        billetterie_info = self.load_billetterie(billetterie_csv)
-        logements_info = self.load_logements(logements_csv)  # ✅ appel correct
 
         # Profiling et intention
         profile = await self.profiling_agent(user_input)
@@ -276,42 +377,29 @@ class MultiAgentService:
             constraints = await self.constraints_agent(profile, weather_info, events_info)
             itinerary = await self.planner_agent(user_input, profile, constraints)
 
-            # 👉 Suggestion logements si séjour > 1 jour
-            if any(word in user_input.lower() for word in ["2 jours", "week-end", "plusieurs jours", "logement", "hôtel"]):
-                logements_text = "\n".join(logements_info[:3]) if logements_info else "Pas de suggestions logements disponibles."
-                itinerary += f"\n\n### 🏨 Suggestions d’hébergement\n{logements_text}"
-
             return {
                 "mode": "itinerary",
-                "profiling": profile,
-                "constraints": constraints,
-                "itinerary": itinerary,
+                "itinerary": itinerary   # 👉 on garde uniquement l’itinéraire
             }
 
         elif intent == "qa":
-            # Réponse simple
             answer = await self.concierge_agent(user_input, profile, weather_info, events_info)
             return {"mode": "qa", "answer": answer}
 
         elif intent == "doc" and embedding_fn:
             # Vérif si la question est sur la billetterie
             if any(word in user_input.lower() for word in ["tarif", "prix", "billet", "ticket", "réduction"]):
+                billetterie_info = self.load_billetterie(billetterie_csv)
                 answer = await self.billetterie_agent(user_input, billetterie_info)
                 return {"mode": "doc", "answer": answer, "domain": "billetterie"}
             
-            # Sinon on passe par Qdrant
+            # Sinon : recherche documentaire
             domain = "pratiques"
             if any(word in user_input.lower() for word in ["plan", "carte", "domaine", "jardin", "accès"]):
                 domain = "plan"
-            elif any(word in user_input.lower() for word in ["hôtel", "hotel", "logement", "hébergement"]):
-                domain = "logement"
 
             answer = await self.doc_agent(user_input, embedding_fn, domain=domain)
             return {"mode": "doc", "answer": answer, "domain": domain}
-
-        elif intent == "lodging":
-            logements_text = "\n".join(logements_info[:3]) if logements_info else "Pas de suggestions logements disponibles."
-            return {"mode": "lodging", "answer": logements_text}
 
         else:
             return {"mode": "unknown", "answer": "⚠️ Je n’ai pas compris la demande."}

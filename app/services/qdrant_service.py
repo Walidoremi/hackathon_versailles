@@ -14,9 +14,9 @@ class QdrantService:
 
         # Définition des collections disponibles
         self.collections = {
-            "billetterie": "billetterie_et_tarifs",
-            "pratiques": "modalites_pratiques",
-            "plan": "plan_du_domaine"
+            "billetterie": "_billets_et_tarifs_",
+            "pratiques": "_modalites_pratiques_",
+            "plan": "_decouverte_du_domaine_"
         }
 
     def search(self, query_vector, domain="pratiques", top_k=5):

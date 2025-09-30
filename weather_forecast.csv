@@ -1,0 +1,42 @@
+datetime,type,temperature,feels_like,humidity,weather
+2025-09-30 07:29:42,current,10.59,10.16,94,Ciel dégagé
+2025-09-30 09:00:00,forecast,10.74,10.3,93,Ciel dégagé
+2025-09-30 12:00:00,forecast,12.96,12.32,77,Ciel dégagé
+2025-09-30 15:00:00,forecast,16.11,15.16,53,Ciel dégagé
+2025-09-30 18:00:00,forecast,14.35,12.88,40,Ciel dégagé
+2025-09-30 21:00:00,forecast,10.82,9.21,48,Ciel dégagé
+2025-10-01 00:00:00,forecast,10.32,8.97,60,Ciel dégagé
+2025-10-01 03:00:00,forecast,12.51,11.59,68,Ciel dégagé
+2025-10-01 06:00:00,forecast,11.63,10.75,73,Peu nuageux
+2025-10-01 09:00:00,forecast,15.06,14.11,57,Peu nuageux
+2025-10-01 12:00:00,forecast,18.69,17.71,42,Partiellement nuageux
+2025-10-01 15:00:00,forecast,19.44,18.35,35,Couvert
+2025-10-01 18:00:00,forecast,17.54,16.39,40,Couvert
+2025-10-01 21:00:00,forecast,15.78,14.77,52,Couvert
+2025-10-02 00:00:00,forecast,13.9,12.83,57,Nuageux
+2025-10-02 03:00:00,forecast,12.92,11.7,55,Nuageux
+2025-10-02 06:00:00,forecast,11.97,10.76,59,Nuageux
+2025-10-02 09:00:00,forecast,14.64,13.36,46,Couvert
+2025-10-02 12:00:00,forecast,17.76,16.48,34,Couvert
+2025-10-02 15:00:00,forecast,18.84,17.48,27,Nuageux
+2025-10-02 18:00:00,forecast,16.61,15.19,33,Couvert
+2025-10-02 21:00:00,forecast,15.17,13.76,39,Couvert
+2025-10-03 00:00:00,forecast,13.55,12.27,50,Couvert
+2025-10-03 03:00:00,forecast,13.36,11.98,47,Couvert
+2025-10-03 06:00:00,forecast,12.96,11.51,46,Couvert
+2025-10-03 09:00:00,forecast,14.99,13.54,38,Couvert
+2025-10-03 12:00:00,forecast,16.29,14.86,34,Couvert
+2025-10-03 15:00:00,forecast,17.33,16.24,43,Couvert
+2025-10-03 18:00:00,forecast,15.24,14.65,70,Légère pluie
+2025-10-03 21:00:00,forecast,14.93,14.85,91,Légère pluie
+2025-10-04 00:00:00,forecast,16.73,16.91,94,Légère pluie
+2025-10-04 03:00:00,forecast,17.64,17.78,89,Légère pluie
+2025-10-04 06:00:00,forecast,12.71,12.02,76,Pluie modérée
+2025-10-04 09:00:00,forecast,13.44,12.46,62,Ciel dégagé
+2025-10-04 12:00:00,forecast,16.51,15.21,38,Ciel dégagé
+2025-10-04 15:00:00,forecast,15.1,13.87,46,Légère pluie
+2025-10-04 18:00:00,forecast,11.87,10.84,66,Légère pluie
+2025-10-04 21:00:00,forecast,10.74,9.72,71,Légère pluie
+2025-10-05 00:00:00,forecast,9.77,6.75,72,Légère pluie
+2025-10-05 03:00:00,forecast,10.23,9.16,71,Nuageux
+2025-10-05 06:00:00,forecast,10.68,9.66,71,Légère pluie
